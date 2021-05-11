@@ -1,13 +1,6 @@
-
-# TODO: set FLASK_APP=nameofthefile.py
-# TODO: set FLASK_ENV=development
-# FLASK RUN
-
-from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+from .app import app
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
 db = SQLAlchemy(app)
 
 
@@ -20,15 +13,3 @@ class Item(db.Model):
 
     def __repr__(self):
         return f'Item {self.name}'
-
-
-@app.route('/')
-@app.route('/home')
-def home_page():
-    return render_template('home.html')
-
-
-@app.route('/market')
-def market_page():
-    items = Item.query.all()
-    return render_template('market.html', items=items)
