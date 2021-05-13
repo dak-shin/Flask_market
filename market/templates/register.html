@@ -9,7 +9,8 @@ Register page
 
     <h4>Register : </h4>
     <br>
-    <form action="" method="POST" class="form-register" style="color:white">
+    <form method="POST" class="form-register" style="color:white">
+        {{ form.hidden_tag() }}
         {{ form.username.label()}}
         {{ form.username(class="form-control", placeholder="Dwight") }}
 
@@ -17,13 +18,16 @@ Register page
         {{ form.email_address(class="form-control", placeholder="DwightSchrute@dm.in") }}
 
         {{ form.password1.label()}}
-        {{ form.username(class="form-control", placeholder="**********") }}
+        {{ form.password1(class="form-control") }}
 
         {{ form.password2.label()}}
-        {{ form.username(class="form-control", placeholder="**********") }}
+        {{ form.password2(class="form-control") }}
+        <br>
         <br>
         {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
     </form>
+
+
 </div>
 
 {% endblock%}
