@@ -2,7 +2,7 @@ from enum import unique
 from operator import length_hint
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
-from .app import app
+from .app import app, bcrypt
 
 db = SQLAlchemy(app)
 
@@ -10,10 +10,20 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(length=30), unique=True, nullable=False)
-    email_address = db.Column(db.String(length=50), unique=True, nullable=False)
+    email_address = db.Column(db.String(length=50),
+                              unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     budget = db.Column(db.Integer(), nullable=False, default=1000)
     items = db.relationship('Item', backref='owned_user', lazy=True)
+
+    @property
+    def pw(self):
+        return self.pw
+
+    @pw.setter
+    def pw(self, plain_text_pw):
+        self.password = bcrypt.generate_password_hash(
+            plain_text_pw).decode('utf-8')
 
 
 class Item(db.Model):

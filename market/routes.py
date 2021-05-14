@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from .app import app
 from .models import Item, User, db
-from .forms import RegisterForm
+from .forms import RegisterForm, LoginForm
 
 
 @app.route('/')
@@ -22,7 +22,7 @@ def register_page():
     if form.validate_on_submit():
         new_user = User(username=form.username.data,
                         email_address=form.email_address.data,
-                        password=form.password1.data)
+                        pw=form.password1.data)
 
         db.session.add(new_user)
         db.session.commit()
@@ -32,3 +32,10 @@ def register_page():
         for err_msg in form.errors.values():
             flash(f'Error : {err_msg}', category="danger")
     return render_template('register.html', form=form, )
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    form = LoginForm()
+
+    return render_template('login.html', form=form)
