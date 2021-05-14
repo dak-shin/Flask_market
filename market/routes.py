@@ -2,19 +2,20 @@ from flask import render_template, redirect, url_for, flash
 from .app import app
 from .models import Item, User, db
 from .forms import RegisterForm, LoginForm
-from flask_login import login_user
+from flask_login import login_user, logout_user, login_required
 
 
 @app.route('/')
 @app.route('/home')
 def home_page():
-    return render_template('home.html')
+    return render_template('home.html', active_home="active")
 
 
 @app.route('/market')
+@login_required
 def market_page():
     items = Item.query.all()
-    return render_template('market.html', items=items)
+    return render_template('market.html', items=items, active_market="active")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -27,12 +28,14 @@ def register_page():
 
         db.session.add(new_user)
         db.session.commit()
+        login_user(new_user)
+        flash(f"Account created and logged in succeffully", category='success')
         return redirect(url_for('market_page'))
     if form.errors != {}:
         # Validation errors
         for err_msg in form.errors.values():
             flash(f'Error : {err_msg}', category="danger")
-    return render_template('register.html', form=form, )
+    return render_template('register.html', form=form, active_register="active")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -48,4 +51,11 @@ def login_page():
         else:
             flash('Invalid credentials, Please try again', category="danger")
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, active_login="active")
+
+
+@app.route('/logout')
+def logout_page():
+    logout_user()
+    flash('Logged out successfully', category='info')
+    return redirect(url_for('home_page'))
