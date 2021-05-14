@@ -7,6 +7,8 @@ from .models import User
 class RegisterForm(FlaskForm):
 
     def validate_username(self, new_username):
+        # validate_ is the prefix used by flaskforms to use this as a validator on the field whose field name is next to validator_
+        # in this case it is username, Similarly for email address as well
         user = User.query.filter_by(username=new_username.data).first()
         if user:
             raise ValidationError("Username is already taken.")

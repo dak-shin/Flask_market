@@ -2,12 +2,18 @@ from enum import unique
 from operator import length_hint
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
-from .app import app, bcrypt
+from .app import app, bcrypt, login_manager
+from flask_login import UserMixin
 
 db = SQLAlchemy(app)
 
 
-class User(db.Model):
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(length=30), unique=True, nullable=False)
     email_address = db.Column(db.String(length=50),
@@ -24,6 +30,16 @@ class User(db.Model):
     def pw(self, plain_text_pw):
         self.password = bcrypt.generate_password_hash(
             plain_text_pw).decode('utf-8')
+
+    def check_password(self, password_entered):
+        return bcrypt.check_password_hash(self.password, password_entered)
+
+    @property
+    def pretty_budget(self):
+        if len(str(self.budget)) >= 4:
+            return f"{str(self.budget)[:-3]},{str(self.budget)[-3:]}"
+        else:
+            return f"{self.budget}"
 
 
 class Item(db.Model):
