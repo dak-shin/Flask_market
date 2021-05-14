@@ -1,7 +1,8 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, flash
 from .app import app
 from .models import Item, User, db
 from .forms import RegisterForm
+
 
 @app.route('/')
 @app.route('/home')
@@ -13,6 +14,7 @@ def home_page():
 def market_page():
     items = Item.query.all()
     return render_template('market.html', items=items)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
@@ -28,13 +30,5 @@ def register_page():
     if form.errors != {}:
         # Validation errors
         for err_msg in form.errors.values():
-            print(f'Error : {err_msg}')
+            flash(f'Error : {err_msg}', category="danger")
     return render_template('register.html', form=form, )
-
-
-
-
-
-
-
-

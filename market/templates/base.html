@@ -43,9 +43,20 @@
         </div>
     </nav>
     <!-- Future Content here -->
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for cat, message in messages %}
+    <div class="alert alert-{{ cat }}" role="alert">
+        {{ message }}
+        <button class="m1-2 mb-1 close" type="button" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     {% block content %}
-    
+
     {% endblock %}
 
     <!-- Optional JavaScript -->
