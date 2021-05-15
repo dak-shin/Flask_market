@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, flash
+from wtforms.widgets.core import Select
 from .app import app
 from .models import Item, User, db
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, PurchaseForm, SellForm
 from flask_login import login_user, logout_user, login_required
 
 
@@ -15,7 +16,10 @@ def home_page():
 @login_required
 def market_page():
     items = Item.query.all()
-    return render_template('market.html', items=items, active_market="active")
+    purchase_form = PurchaseForm()
+    sell_form = SellForm()
+
+    return render_template('market.html', items=items, active_market="active", purchase_form=purchase_form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
