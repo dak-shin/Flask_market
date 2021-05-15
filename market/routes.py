@@ -1,9 +1,10 @@
-from flask import render_template, redirect, url_for, flash
+from threading import current_thread
+from flask import render_template, redirect, url_for, flash, request
 from wtforms.widgets.core import Select
 from .app import app
 from .models import Item, User, db
 from .forms import RegisterForm, LoginForm, PurchaseForm, SellForm
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 
 @app.route('/')
@@ -12,14 +13,34 @@ def home_page():
     return render_template('home.html', active_home="active")
 
 
-@app.route('/market')
+# Market page
+
+
+@app.route('/market', methods=['GET', 'POST'])
 @login_required
 def market_page():
-    items = Item.query.all()
-    purchase_form = PurchaseForm()
-    sell_form = SellForm()
 
-    return render_template('market.html', items=items, active_market="active", purchase_form=purchase_form)
+    purchase_form = PurchaseForm()
+
+    if request.method == "POST":
+        purchased_item = request.form.get('purchased_item')
+        item_object = Item.query.filter_by(name=purchased_item).first()
+        if item_object:
+            if current_user.can_purchase(item_object):
+                item_object.purchase_item(current_user)
+                flash(
+                    f'Purchased {item_object.name} item successfully', category="success")
+            else:
+                flash(
+                    f'Your budget of {current_user.budget} is insuffecient to make this purchase!!', category='danger')
+
+        return redirect(url_for('market_page'))
+
+    if request.method == "GET":
+        items = Item.query.filter_by(owner=None)
+        return render_template('market.html', items=items, active_market="active", purchase_form=purchase_form)
+
+# Register page
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -41,6 +62,8 @@ def register_page():
             flash(f'Error : {err_msg}', category="danger")
     return render_template('register.html', form=form, active_register="active")
 
+# Login page
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
@@ -56,6 +79,8 @@ def login_page():
             flash('Invalid credentials, Please try again', category="danger")
 
     return render_template('login.html', form=form, active_login="active")
+
+# Logout
 
 
 @app.route('/logout')
