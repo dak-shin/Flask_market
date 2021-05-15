@@ -37,6 +37,9 @@ class User(db.Model, UserMixin):
     def can_purchase(self, item_obj):
         return self.budget >= item_obj.price
 
+    def can_sell(self, item_obj):
+        return (item_obj in self.items)
+
     @property
     def pretty_budget(self):
         if len(str(self.budget)) >= 4:
@@ -59,4 +62,9 @@ class Item(db.Model):
     def purchase_item(self, user):
         self.owner = user.id
         user.budget -= self.price
+        db.session.commit()
+
+    def sell_item(self, user):
+        self.owner = None
+        user.budget += self.price
         db.session.commit()
